@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void sendDataStatue(boolean send, MqMssage message) {
                             o.e(tag ,"sendDataStatue " +message.toString()) ;
+
                         }
 
                         @Override

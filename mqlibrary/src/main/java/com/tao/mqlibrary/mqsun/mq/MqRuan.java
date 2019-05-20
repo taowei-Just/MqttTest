@@ -75,7 +75,6 @@ public class MqRuan implements Runnable, IMq {
 
     public void createMq() throws Exception {
 
-        o.e(TAG, "createMq");
         if (mqHelper.build == null)
             throw new Exception("MQ parameter is null ");
         clearData();
@@ -155,7 +154,7 @@ public class MqRuan implements Runnable, IMq {
         postRun(new Runnable() {
             @Override
             public void run() {
-               o.e(TAG,"connect:" );
+//               o.e(TAG,"connect:" );
                 autoconn =true ;
                 try {
                     if (mqHelper.connectIng) {
@@ -318,10 +317,7 @@ public class MqRuan implements Runnable, IMq {
                 return  mssage ;
             }
         }
-//
-//        if (publishMap.containsKey(token)){
-//            return  getMessageByid(token);
-//        }
+
         return null;
     }
 

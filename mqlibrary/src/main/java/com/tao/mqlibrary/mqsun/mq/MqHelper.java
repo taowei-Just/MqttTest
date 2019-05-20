@@ -59,6 +59,7 @@ public class MqHelper implements IMq {
                             e.printStackTrace();
                         }
                     }
+                    if (build.prepareCall!=null)
                     build.prepareCall.OnHandlerLooper();
                 }
             });
