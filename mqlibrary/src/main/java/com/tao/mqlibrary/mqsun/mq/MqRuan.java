@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class MqRuan implements Runnable, IMq {
     String TAG = getClass().getSimpleName();
     MqHelper mqHelper;
@@ -62,15 +61,13 @@ public class MqRuan implements Runnable, IMq {
     }
 
     public void destory() {
-        if (!handlepPrepare)
+        if (!handlepPrepare || runHandler==null || myLooper==null)
             return;
         disconnect();
-        postRun(new Runnable() {
-            @Override
-            public void run() {
-                myLooper.quit();
-            }
-        });
+        myLooper.quit();
+        myLooper=null ;
+        runHandler=null;
+
     }
 
     public void createMq() throws Exception {
@@ -193,18 +190,19 @@ public class MqRuan implements Runnable, IMq {
     }
 
     private void autoReconnect() {
-        if (!mqHelper.build.isAutoReconnect() &&!autoconn && isConnect() )
+        if (!mqHelper.build.isAutoReconnect() &&!autoconn && isConnect() || runHandler==null)
             return;
         postDely(autoConnectRun,mqHelper.build.getAutoReconnectTime()*1000);
     }
 
     private void postDely(Runnable runnable, int autoReconnectTime) {
-        if (handlepPrepare)
+        if (handlepPrepare&&runHandler!=null)
         runHandler.postDelayed(runnable,autoReconnectTime);
     }
 
     @Override
     public void disconnect() {
+        if (runHandler!=null)
         runHandler.removeCallbacks(autoConnectRun);
         autoconn =false;
         postRun(new Runnable() {
@@ -342,7 +340,7 @@ public class MqRuan implements Runnable, IMq {
     }
 
     public void postRun(Runnable runable) {
-        if (!handlepPrepare)
+        if (!handlepPrepare||runHandler==null)
             return;
         runHandler.post(runable);
     }

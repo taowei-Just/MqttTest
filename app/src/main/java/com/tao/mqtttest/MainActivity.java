@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private void mq() {
         try {
             mqHelper = new MqHelper.Build(getApplicationContext())
-                    .config("tcp://","tobacco.sun-hyt.com","10000","1234","admin","123456")
+                    .config("tcp://","tobacco.sun-hyt.com","1883","1234","admin","123456")
                     .sub(new String[]{"123"})
                     .setAutoReconnect(true)
                     .setAutoReconnectTime(5)
@@ -113,5 +113,9 @@ public class MainActivity extends AppCompatActivity {
         }).start();
 
 
+    }
+
+    public void disconnect(View view) {
+        mqHelper.destoryMq();
     }
 }

@@ -36,9 +36,10 @@ public class MessageQueue {
     }
 
     public Message next() {
-        while (true) {
-            synchronized (mQueue) {
-                try {
+        try {
+            while (true) {
+                synchronized (mQueue) {
+
                     if (!mQueue.isEmpty()) {
                         Message poll = mQueue.poll();
                         long l = System.currentTimeMillis() - poll.getCreateTime();
@@ -49,14 +50,16 @@ public class MessageQueue {
                     }
                     if (mQueue.size() <= 0)
                         mQueue.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
                 }
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        return null ;
     }
 
-    public  synchronized void removeCallbacks(Runnable autoConnectRun) {
+    public synchronized void removeCallbacks(Runnable autoConnectRun) {
         for (Message message : mQueue) {
             if (message == null || message.getRunnable() != autoConnectRun)
                 continue;

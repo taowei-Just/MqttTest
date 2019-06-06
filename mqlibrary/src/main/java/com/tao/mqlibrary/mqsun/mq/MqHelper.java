@@ -11,6 +11,7 @@ import com.tao.mqlibrary.mqsun.iml.MqStatueCall;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ public class MqHelper implements IMq {
     boolean reconn = false;
     private ThreadPoolExecutor executor;
     private MqRuan mqRun;
+    private Future<?> submit;
 
     public static int getMsgId(Context context, int i) {
         SharedPreferences shre =  context.getSharedPreferences("config" , Context.MODE_MULTI_PROCESS);
@@ -63,12 +65,13 @@ public class MqHelper implements IMq {
                     build.prepareCall.OnHandlerLooper();
                 }
             });
-            executor.submit(mqRun);
+            submit = executor.submit(mqRun);
         }
     }
 
     public void  destoryMq(){
         mqRun.destory();
+        submit.cancel(true);
     }
 
     @Override

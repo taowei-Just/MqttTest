@@ -54,4 +54,8 @@ public class Handler {
     public void removeCallbacks(Runnable autoConnectRun) {
         mLooper.getMessageQueue().removeCallbacks(autoConnectRun);
     }
+
+    public void removeAllCallbackS() {
+        mLooper.getMessageQueue().removeAll();
+    }
 }

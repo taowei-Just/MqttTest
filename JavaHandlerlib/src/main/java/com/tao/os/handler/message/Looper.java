@@ -79,7 +79,7 @@ public class Looper {
 
     public void quit() {
         isquit = true;
-        sThreadLocal.get().mMessageQueue.removeAll();
+        mMessageQueue.removeAll();
     }
 
     public boolean isPerpare() {
