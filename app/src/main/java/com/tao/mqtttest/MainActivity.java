@@ -12,21 +12,23 @@ import com.tao.mqlibrary.utils.o;
 
 public class MainActivity extends AppCompatActivity {
 
-    String tag =getClass().getSimpleName() ;
+    String tag = getClass().getSimpleName();
     private MqHelper mqHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mq();
-    }
 
+    }
+    int id = 1234;
     private void mq() {
         try {
+
+            final String   clientid = (++id) + "";
             mqHelper = new MqHelper.Build(getApplicationContext())
-                    .config("tcp://","tobacco.sun-hyt.com","1883","1234","admin","123456")
-                    .sub(new String[]{"123"})
+                    .config("tcp://", "tobacco.sun-hyt.com", "1883", clientid, "admin", "123456")
+                    .sub(new String[]{clientid})
                     .setAutoReconnect(true)
                     .setAutoReconnectTime(5)
                     .setConnectTimeout(20)
@@ -34,52 +36,48 @@ public class MainActivity extends AppCompatActivity {
                     .setPrepareCall(new IHandlerCreate() {
                         @Override
                         public void OnHandlerLooper() {
-                            o.e(tag ,"OnHandlerLooper") ;
+                            o.e(tag, "OnHandlerLooper");
                         }
                     })
                     .setMqStatueCall(new MqStatueCall() {
                         @Override
                         public void OnConnectStatueChange(boolean conn) {
-                            o.e(tag ,"OnConnectStatueChange " +conn) ;
-                            if (conn ){
+                            o.e(tag, "OnConnectStatueChange " + conn + " " +clientid);
+                            if (conn) {
                                 sedmessage();
                             }
                         }
 
                         @Override
                         public void sendDataStatue(boolean send, MqMssage message) {
-                            o.e(tag ,"sendDataStatue " +message.toString()) ;
+                            o.e(tag, "sendDataStatue " + message.toString());
 
                         }
-
                         @Override
                         public void OnMessage(MqMssage mqMessage) {
-                            o.e(tag ,"OnMessage " +mqMessage.toString()) ;
+                            o.e(tag, "OnMessage " + mqMessage.toString());
 
                         }
-                    })  .build();
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void sedmessage() {
-        if (mqHelper==null||!mqHelper.isConnect())
+        if (mqHelper == null || !mqHelper.isConnect())
             return;
 
         try {
             MqMssage mssage = new MqMssage();
-            mssage.message="111111111" ;
-            mssage.themeS=new String[]{"234"};
-            mssage.messageId=mqHelper.getMsgId(this,0);
-
-            o.e(tag ,"sedmessage " +mssage.toString()) ;
-
+            mssage.message = "111111111";
+            mssage.themeS = new String[]{"234"};
+            mssage.messageId = mqHelper.getMsgId(this, 0);
+            o.e(tag, "sedmessage " + mssage.toString());
             mqHelper.send(mssage);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
     }
 
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reconnect(View view) {
-        if (mqHelper==null )
+        if (mqHelper == null)
             return;
         new Thread(new Runnable() {
             @Override
@@ -116,6 +114,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void disconnect(View view) {
+        if (mqHelper!=null )
         mqHelper.destoryMq();
+    }
+
+    public void create(View view) {
+        mq();
     }
 }
