@@ -31,11 +31,13 @@ public class MqRuan implements Runnable, IMq {
     private Runnable autoConnectRun;
     private boolean autoconn = false;
     boolean handlepPrepare = false;
+    boolean distory=false ;
     private IMqttDeliveryToken mpublish;
     Map<IMqttDeliveryToken, List<MqMssage>> publishMap = new HashMap<>();
     Map<String, IMqttDeliveryToken> tokenMap = new HashMap<>();
-
     List<MqMssage> sendMessageList = new ArrayList<>();
+
+
 
     public MqRuan(MqHelper mqHelper, IHandlerCreate iHandlerCreate) {
         this.mqHelper = mqHelper;
@@ -65,8 +67,15 @@ public class MqRuan implements Runnable, IMq {
         if (!handlepPrepare || runHandler == null || myLooper == null)
             return;
         disconnect();
-
-
+        postRun(new Runnable() {
+            @Override
+            public void run() {
+                myLooper.quit();
+                myLooper = null;
+                runHandler = null;
+            }
+        });
+        distory=true;
     }
 
     public void createMq() throws Exception {
@@ -221,9 +230,9 @@ public class MqRuan implements Runnable, IMq {
                     }
                     clearData();
                     mqttClient = null;
-                    myLooper.quit();
-                    myLooper = null;
-                    runHandler = null;
+//                    myLooper.quit();
+//                    myLooper = null;
+//                    runHandler = null;
                     mqHelper.build.OnConnectStatueChange(false);
                 }
             }
@@ -232,8 +241,9 @@ public class MqRuan implements Runnable, IMq {
     }
 
     @Override
-    public synchronized void reConnect() {
-
+    public synchronized boolean reConnect() {
+        if (distory)
+            return false;
         postRun(new Runnable() {
             @Override
             public void run() {
@@ -242,6 +252,7 @@ public class MqRuan implements Runnable, IMq {
                 connect();
             }
         });
+        return true;
     }
 
     public boolean isConnect() {

@@ -93,8 +93,8 @@ public class MqHelper implements IMq {
     }
 
     @Override
-    public void reConnect() throws Exception {
-        mqRun.reConnect();
+    public boolean reConnect() throws Exception {
+       return mqRun.reConnect();
     }
     public boolean isConnect() {
         return mqRun.isConnect();

@@ -11,6 +11,6 @@ public interface IMq {
 
     void disconnect() throws Exception;
 
-    void reConnect() throws Exception;
+    boolean reConnect() throws Exception;
 
 }
