@@ -26,6 +26,11 @@ public class MqHelper implements IMq {
     private ThreadPoolExecutor executor;
     private MqRuan mqRun;
     private Future<?> submit;
+    boolean prepare =false ;
+
+    public boolean isPrepare() {
+        return prepare;
+    }
 
     public static int getMsgId(Context context, int i) {
         SharedPreferences shre =  context.getSharedPreferences("config" , Context.MODE_MULTI_PROCESS);
@@ -53,16 +58,21 @@ public class MqHelper implements IMq {
             executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
             mqRun = new MqRuan(this, new IHandlerCreate() {
                 @Override
-                public void OnHandlerLooper() {
-                    if (build.isAutoReconnect()) {
+                public void OnHandlerLooper(boolean prepare) {
+                    MqHelper.this.prepare =prepare ;
+
+                    if (build.prepareCall!=null) {
+                        build.prepareCall.OnHandlerLooper( prepare);
+                    }
+
+                    if (prepare&&build.isAutoReconnect()) {
                         try {
                             connect();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                    if (build.prepareCall!=null)
-                    build.prepareCall.OnHandlerLooper();
+
                 }
             });
             submit = executor.submit(mqRun);
@@ -71,7 +81,16 @@ public class MqHelper implements IMq {
 
     public void  destoryMq(){
         mqRun.destory();
-        submit.cancel(true);
+        mqRun.postRun(new Runnable() {
+            @Override
+            public void run() {
+                mqRun.quit();
+                submit.cancel(true);
+                executor.shutdownNow();
+            }
+        });
+
+
     }
 
     @Override

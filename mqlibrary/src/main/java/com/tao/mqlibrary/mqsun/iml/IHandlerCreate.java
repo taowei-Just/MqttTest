@@ -2,5 +2,5 @@ package com.tao.mqlibrary.mqsun.iml;
 
 public interface IHandlerCreate {
 
-    void  OnHandlerLooper();
+    void  OnHandlerLooper(boolean prepare);
 }

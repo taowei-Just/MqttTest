@@ -31,12 +31,11 @@ public class MqRuan implements Runnable, IMq {
     private Runnable autoConnectRun;
     private boolean autoconn = false;
     boolean handlepPrepare = false;
-    boolean distory=false ;
+    boolean distory = false;
     private IMqttDeliveryToken mpublish;
     Map<IMqttDeliveryToken, List<MqMssage>> publishMap = new HashMap<>();
     Map<String, IMqttDeliveryToken> tokenMap = new HashMap<>();
     List<MqMssage> sendMessageList = new ArrayList<>();
-
 
 
     public MqRuan(MqHelper mqHelper, IHandlerCreate iHandlerCreate) {
@@ -54,13 +53,21 @@ public class MqRuan implements Runnable, IMq {
 
     @Override
     public void run() {
-        Looper.prepare();
-        myLooper = Looper.myLooper();
-        runHandler = new Handler(myLooper);
-        handlepPrepare = true;
-        if (iHandlerCreate != null)
-            iHandlerCreate.OnHandlerLooper();
-        Looper.loop();
+        try {
+            Looper.prepare();
+            myLooper = Looper.myLooper();
+            runHandler = new Handler(myLooper);
+            handlepPrepare = true;
+            if (iHandlerCreate != null)
+                iHandlerCreate.OnHandlerLooper(true);
+            Looper.loop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+
+            if (iHandlerCreate != null)
+                iHandlerCreate.OnHandlerLooper(false);
+        }
     }
 
     public void destory() {
@@ -70,12 +77,17 @@ public class MqRuan implements Runnable, IMq {
         postRun(new Runnable() {
             @Override
             public void run() {
-                myLooper.quit();
-                myLooper = null;
-                runHandler = null;
+                quit();
             }
         });
-        distory=true;
+        distory = true;
+    }
+
+    public void quit() {
+        if(myLooper!=null)
+        myLooper.quit();
+        myLooper = null;
+        runHandler = null;
     }
 
     public void createMq() throws Exception {
@@ -101,7 +113,7 @@ public class MqRuan implements Runnable, IMq {
         postRun(new Runnable() {
             @Override
             public void run() {
-                o.e(TAG, "postMesage:" + mqMssage.toString());
+//                o.e(TAG, "postMesage:" + mqMssage.toString());
                 if (mqMssage == null || mqMssage.themeS == null)
                     return;
                 for (String str : mqMssage.themeS) {
@@ -118,6 +130,12 @@ public class MqRuan implements Runnable, IMq {
                     mssage.themeS = new String[]{str};
                     mqttMessage.setQos(mssage.qos);
                     try {
+                        if (mqttClient == null) {
+                            mqHelper.build.getStatueCall().sendDataStatue(false, mssage);
+                            mqHelper.build.getStatueCall().OnConnectStatueChange(false);
+                            return;
+                        }
+
                         token = mqttClient.mqublish(str, mqttMessage);
 //                       o.e(TAG ,"token:" +token);
                         mssage.messageId = token.getMessageId();
@@ -134,6 +152,8 @@ public class MqRuan implements Runnable, IMq {
 //                            publishMap.put(token,list);
 //                        }
 //                       o.e(TAG ,"mqublish 2 " + token.getMessageId());
+
+
                     } catch (MqttException e) {
                         e.printStackTrace();
                         mqHelper.build.getStatueCall().sendDataStatue(false, mssage);
@@ -159,7 +179,7 @@ public class MqRuan implements Runnable, IMq {
         postRun(new Runnable() {
             @Override
             public void run() {
-                o.e(TAG, "connect:");
+
                 autoconn = true;
                 try {
                     if (mqHelper.connectIng) {
@@ -171,7 +191,7 @@ public class MqRuan implements Runnable, IMq {
                         throw new Exception("MQ allerady connect  ");
                     }
                     createMq();
-                    o.e(TAG, "connect ");
+//                    o.e(TAG, "connect ");
                     // mqtt 连接参数配置
                     MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
                     mqttConnectOptions.setConnectionTimeout(mqHelper.build.getConnectTimeout());
@@ -182,7 +202,7 @@ public class MqRuan implements Runnable, IMq {
                     mqttClient.connectWithResult(mqttConnectOptions);
                     mqHelper.isConnect = true;
                     sub(mqHelper.build.topis());
-                    o.e(TAG, "connect success " + mqHelper.build.clientid() + " sub " + Arrays.toString(mqHelper.build.topis()));
+//                    o.e(TAG, "connect success " + mqHelper.build.clientid() + " sub " + Arrays.toString(mqHelper.build.topis()));
                     mqHelper.build.OnConnectStatueChange(true);
 
                 } catch (Exception e) {
@@ -217,7 +237,7 @@ public class MqRuan implements Runnable, IMq {
             @Override
             public void run() {
                 if (mqttClient != null) {
-                    o.e(TAG, "disconnect:");
+//                    o.e(TAG, "disconnect:");
                     try {
                         mqttClient.disconnect();
                     } catch (MqttException e) {
@@ -230,9 +250,6 @@ public class MqRuan implements Runnable, IMq {
                     }
                     clearData();
                     mqttClient = null;
-//                    myLooper.quit();
-//                    myLooper = null;
-//                    runHandler = null;
                     mqHelper.build.OnConnectStatueChange(false);
                 }
             }
@@ -247,7 +264,7 @@ public class MqRuan implements Runnable, IMq {
         postRun(new Runnable() {
             @Override
             public void run() {
-                o.e(TAG, "reConnect");
+//                o.e(TAG, "reConnect");
                 disconnect();
                 connect();
             }

@@ -145,7 +145,7 @@ public class Mqtt_client_server extends Service implements IMq {
                     })
                     .setPrepareCall(new IHandlerCreate() {
                         @Override
-                        public void OnHandlerLooper() {
+                        public void OnHandlerLooper(boolean prepare) {
                             try {
                                 mqHelper.connect();
                             } catch (Exception e) {
@@ -193,10 +193,10 @@ public class Mqtt_client_server extends Service implements IMq {
     }
 
     @Override
-    public void reConnect() throws Exception {
+    public boolean reConnect() throws Exception {
         if (mqHelper != null)
-            mqHelper.reConnect();
-
+            return mqHelper.reConnect();
+return false;
     }
 
     @Subscribe()
