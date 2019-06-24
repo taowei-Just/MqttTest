@@ -253,7 +253,6 @@ public class MqRuan implements Runnable, IMq {
                     mqHelper.build.OnConnectStatueChange(false);
                 }
             }
-
         });
     }
 
