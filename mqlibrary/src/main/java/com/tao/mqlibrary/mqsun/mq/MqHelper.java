@@ -65,7 +65,7 @@ public class MqHelper implements IMq {
                         build.prepareCall.OnHandlerLooper( prepare);
                     }
 
-                    if (prepare&&build.isAutoReconnect()) {
+                    if (prepare&&build.isAutoReconnect() && !mqRun.isDestory()) {
                         try {
                             connect();
                         } catch (Exception e) {
@@ -80,6 +80,8 @@ public class MqHelper implements IMq {
     }
 
     public void  destoryMq(){
+        if (mqRun.isDestory())
+            return;
         mqRun.destory();
         mqRun.postRun(new Runnable() {
             @Override

@@ -51,7 +51,7 @@ public class Handler {
         post(message);
     }
 
-    public void removeCallbacks(Runnable autoConnectRun) {
+    public synchronized void removeCallbacks(Runnable autoConnectRun) {
         mLooper.getMessageQueue().removeCallbacks(autoConnectRun);
     }
 

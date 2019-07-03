@@ -24,7 +24,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         service = Executors.newSingleThreadExecutor();
-        final long t = 50 ;
+        final long t = 50;
+
+//        service.submit(new Runnable() {
+//
+//            private long aLong = System.currentTimeMillis();
+//
+//            @Override
+//            public void run() {
+//                boolean b =true ;
+//                while (b) {
+//                     create(null);
+//                    if (System.currentTimeMillis() - aLong >10*1000 ){
+//                        o.e("退出===============================================\n" +
+//                                "================================================");
+//                        b=false;
+//                    }
+//                }
+//            }
+//        });
+
         service.submit(new Runnable() {
             @Override
             public void run() {
@@ -77,13 +96,15 @@ public class MainActivity extends AppCompatActivity {
 
     int id = 1;
 
-    boolean aa =false ;
+    boolean aa = false;
+
     private void mq() {
         try {
             final String clientid = (++id) + "";
+//            final String clientid = id + "";
             mqHelper = new MqHelper.Build(getApplicationContext())
                     .config("tcp://", "tobacco.sun-hyt.com", "1883", clientid, "admin", "123456")
-                    .sub(new String[]{clientid})
+                    .sub(new String[]{"1"})
                     .setAutoReconnect(true)
                     .setAutoReconnectTime(1)
                     .setConnectTimeout(20)
@@ -91,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     .setPrepareCall(new IHandlerCreate() {
                         @Override
                         public void OnHandlerLooper(boolean prepare) {
-                         o.e("OnHandlerLooper "+prepare);
+                            o.e("OnHandlerLooper " + prepare);
                         }
                     })
                     .setMqStatueCall(new MqStatueCall() {
@@ -158,12 +179,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void create(View view) {
-        disconnect(null);
+        release(null);
         mq();
     }
 
     public void release(View view) {
         if (mqHelper != null)
             mqHelper.destoryMq();
+             mqHelper = null;
     }
 }

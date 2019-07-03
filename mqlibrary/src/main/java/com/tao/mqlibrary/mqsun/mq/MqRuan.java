@@ -1,6 +1,8 @@
 package com.tao.mqlibrary.mqsun.mq;
 
 
+import android.util.Log;
+
 import com.tao.mqlibrary.mqsun.Message.MqMssage;
 import com.tao.mqlibrary.mqsun.iml.IHandlerCreate;
 import com.tao.mqlibrary.mqsun.iml.IMq;
@@ -36,6 +38,7 @@ public class MqRuan implements Runnable, IMq {
     Map<IMqttDeliveryToken, List<MqMssage>> publishMap = new HashMap<>();
     Map<String, IMqttDeliveryToken> tokenMap = new HashMap<>();
     List<MqMssage> sendMessageList = new ArrayList<>();
+    private boolean destory;
 
 
     public MqRuan(MqHelper mqHelper, IHandlerCreate iHandlerCreate) {
@@ -63,7 +66,7 @@ public class MqRuan implements Runnable, IMq {
             Looper.loop();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
 
             if (iHandlerCreate != null)
                 iHandlerCreate.OnHandlerLooper(false);
@@ -71,8 +74,7 @@ public class MqRuan implements Runnable, IMq {
     }
 
     public void destory() {
-        if (!handlepPrepare || runHandler == null || myLooper == null)
-            return;
+
         disconnect();
         postRun(new Runnable() {
             @Override
@@ -84,8 +86,8 @@ public class MqRuan implements Runnable, IMq {
     }
 
     public void quit() {
-        if(myLooper!=null)
-        myLooper.quit();
+        if (myLooper != null)
+            myLooper.quit();
         myLooper = null;
         runHandler = null;
     }
@@ -176,6 +178,10 @@ public class MqRuan implements Runnable, IMq {
 
     @Override
     public synchronized void connect() {
+        if (destory) {
+            Log.d(TAG ,"mq Tag is destory ");
+            return;
+        }
         postRun(new Runnable() {
             @Override
             public void run() {
@@ -188,7 +194,8 @@ public class MqRuan implements Runnable, IMq {
                     }
                     mqHelper.connectIng = true;
                     if (isConnect()) {
-                        throw new Exception("MQ allerady connect  ");
+                        Log.d(TAG ,"mq isaleardy connect ");
+                        return;
                     }
                     createMq();
 //                    o.e(TAG, "connect ");
@@ -218,7 +225,7 @@ public class MqRuan implements Runnable, IMq {
     }
 
     private void autoReconnect() {
-        if (!mqHelper.build.isAutoReconnect() && !autoconn && isConnect() || runHandler == null)
+        if (!mqHelper.build.isAutoReconnect() && !autoconn && isConnect() || runHandler == null || distory)
             return;
         postDely(autoConnectRun, mqHelper.build.getAutoReconnectTime() * 1000);
     }
@@ -230,8 +237,12 @@ public class MqRuan implements Runnable, IMq {
 
     @Override
     public void disconnect() {
-        if (runHandler != null)
-            runHandler.removeCallbacks(autoConnectRun);
+        try {
+            if (runHandler != null)
+                runHandler.removeCallbacks(autoConnectRun);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         autoconn = false;
         postRun(new Runnable() {
             @Override
@@ -294,6 +305,10 @@ public class MqRuan implements Runnable, IMq {
                 }
             }
         });
+    }
+
+    public boolean isDestory() {
+        return destory;
     }
 
     class MyMqCall implements MqttCallback {

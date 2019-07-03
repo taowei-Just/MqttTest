@@ -22,9 +22,7 @@ public class MessageQueue {
 
     public void removeAll() {
         synchronized (mQueue) {
-            for (Message message : mQueue) {
-                mQueue.remove(message);
-            }
+            mQueue.clear();
         }
     }
 
@@ -39,7 +37,6 @@ public class MessageQueue {
         try {
             while (true) {
                 synchronized (mQueue) {
-
                     if (!mQueue.isEmpty()) {
                         Message poll = mQueue.poll();
                         long l = System.currentTimeMillis() - poll.getCreateTime();
@@ -50,7 +47,6 @@ public class MessageQueue {
                     }
                     if (mQueue.size() <= 0)
                         mQueue.wait();
-
                 }
             }
         } catch (InterruptedException e) {
@@ -60,12 +56,7 @@ public class MessageQueue {
     }
 
     public synchronized void removeCallbacks(Runnable autoConnectRun) {
-        for (Message message : mQueue) {
-            if (message == null || message.getRunnable() != autoConnectRun)
-                continue;
-            mQueue.remove(message);
-            break;
-        }
-
+       if ( mQueue.contains(autoConnectRun))
+           mQueue.remove(autoConnectRun);
     }
 }
