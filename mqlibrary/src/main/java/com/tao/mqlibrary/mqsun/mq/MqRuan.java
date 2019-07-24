@@ -17,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -381,7 +382,12 @@ public class MqRuan implements Runnable, IMq {
 
 
     private String getMessage(MqttMessage message) {
-        return new String(message.getPayload());
+        try {
+            return new String(message.getPayload(),"utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return  new String(message.getPayload());
     }
 
     public void postRun(Runnable runable) {

@@ -68,7 +68,7 @@ public class MqHelper implements IMq {
                     if (prepare&&build.isAutoReconnect() && !mqRun.isDestory()) {
                         try {
                             connect();
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             e.printStackTrace();
                         }
                     }

@@ -44,53 +44,53 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        service.submit(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        mq();
-                        try {
-                            Thread.sleep(t);
-                        } catch (InterruptedException e) {
-                        }
-
-                        while (mqHelper.isPrepare()){
-                            try {
-                                Thread.sleep(10);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            try {
-                                disconnect(null);
-                                try {
-                                    Thread.sleep(50);
-                                } catch (InterruptedException e) {
-                                }
-                                reconnect(null);
-                                try {
-                                    Thread.sleep(50);
-                                } catch (InterruptedException e) {
-
-                                }
-                                release(null);
-                                try {
-                                    Thread.sleep(5*10);
-                                } catch (InterruptedException e) {
-
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    } finally {
-
-                    }
-                }
-
-            }
-        });
+//        service.submit(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (true) {
+//                    try {
+//                        mq();
+//                        try {
+//                            Thread.sleep(t);
+//                        } catch (InterruptedException e) {
+//                        }
+//
+//                        while (mqHelper.isPrepare()){
+//                            try {
+//                                Thread.sleep(10);
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                disconnect(null);
+//                                try {
+//                                    Thread.sleep(50);
+//                                } catch (InterruptedException e) {
+//                                }
+//                                reconnect(null);
+//                                try {
+//                                    Thread.sleep(50);
+//                                } catch (InterruptedException e) {
+//
+//                                }
+//                                release(null);
+//                                try {
+//                                    Thread.sleep(5*10);
+//                                } catch (InterruptedException e) {
+//
+//                                }
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                        }
+//                    } finally {
+//
+//                    }
+//                }
+//
+//            }
+//        });
     }
 
 
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             final String clientid = (++id) + "";
 //            final String clientid = id + "";
             mqHelper = new MqHelper.Build(getApplicationContext())
-                    .config("tcp://", "tobacco.sun-hyt.com", "1883", clientid, "admin", "123456")
+                    .config("tcp://", "60.205.182.166", "1883", clientid, "admin", "123456")
                     .sub(new String[]{"1"})
                     .setAutoReconnect(true)
                     .setAutoReconnectTime(1)
